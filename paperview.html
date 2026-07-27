@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tamanho Real de Papel no Monitor</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #fullscreenPaper {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .paper-surface {
+            background: white;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .paper-label {
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e94560;
+            color: white;
+            padding: 5px 16px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            white-space: nowrap;
+            z-index: 5;
+        }
+        .paper-dimensions {
+            position: absolute;
+            top: -28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26,26,46,0.85);
+            color: #ccc;
+            padding: 3px 12px;
+            border-radius: 5px;
+            font-size: 0.78em;
+            white-space: nowrap;
+            z-index: 5;
+        }
+
+        .corner-mark {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: #bbb;
+            border-style: solid;
+            z-index: 2;
+        }
+        .corner-mark.tl { top: 4px; left: 4px; border-width: 2px 0 0 2px; }
+        .corner-mark.tr { top: 4px; right: 4px; border-width: 2px 2px 0 0; }
+        .corner-mark.bl { bottom: 4px; left: 4px; border-width: 0 0 2px 2px; }
+        .corner-mark.br { bottom: 4px; right: 4px; border-width: 0 2px 2px 0; }
+
+        .ruler-h {
+            position: absolute;
+            height: 18px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 3px;
+            z-index: 3;
+        }
+        .ruler-h.top { bottom: 100%; left: 0; margin-bottom: 4px; }
+        .ruler-h.left { top: 0; right: 100%; margin-right: 4px; height: auto; width: 18px; }
+        .ruler-mark {
+            position: absolute;
+            background: rgba(200,200,200,0.5);
+        }
+        .ruler-mark.cm { width: 1px; height: 10px; }
+        .ruler-mark.half { width: 1px; height: 6px; }
+        .ruler-label {
+            position: absolute;
+            bottom: -15px;
+            font-size: 9px;
+            color: rgba(200,200,200,0.6);
+            transform: translateX(-50%);
+        }
+
+        #controlsPanel {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 100;
+        }
+        #toggleControls {
+            background: rgba(15,52,96,0.85);
+            border: 1px solid #e94560;
+            color: #e94560;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            backdrop-filter: blur(6px);
+            transition: all 0.2s;
+        }
+        #toggleControls:hover { background: #e94560; color: white; }
+
+        #configPanel {
+            display: none;
+            background: rgba(22,33,62,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 18px;
+            margin-top: 8px;
+            min-width: 340px;
+            max-width: 500px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+        }
+        #configPanel.open { display: block; }
+
+        #configPanel label {
+            display: block;
+            font-size: 0.72em;
+            color: #aaa;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        #configPanel select,
+        #configPanel input[type="number"] {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            font-size: 0.88em;
+            margin-bottom: 10px;
+        }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .paper-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 12px 0;
+        }
+        .paper-btn {
+            padding: 5px 10px;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            background: transparent;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 0.75em;
+            transition: all 0.2s;
+        }
+        .paper-btn:hover { border-color: #e94560; color: #e94560; }
+        .paper-btn.active { border-color: #e94560; background: #e94560; color: white; }
+
+        .orient-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .orient-btn {
+            padding: 5px 12px;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            background: transparent;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 0.78em;
+            transition: all 0.2s;
+        }
+        .orient-btn.active { border-color: #e94560; background: #e94560; color: white; }
+
+        .dpi-bar {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(15,52,96,0.5);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .dpi-bar .val { font-size: 1em; font-weight: bold; color: #e94560; }
+        .dpi-bar .lbl { font-size: 0.65em; color: #888; }
+
+        .chk { font-size: 0.75em; color: #aaa; margin-right: 10px; }
+        .chk input { accent-color: #e94560; }
+
+        .calibrate-box {
+            width: 50mm;
+            height: 50mm;
+            border: 2px dashed #e94560;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px auto;
+            border-radius: 4px;
+        }
+        .calibrate-box span { color: #e94560; font-size: 0.75em; }
+
+        #paperInfo {
+            position: fixed;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(15,52,96,0.8);
+            backdrop-filter: blur(6px);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.8em;
+            color: #aaa;
+            z-index: 100;
+        }
+        #paperInfo strong { color: #e94560; }
+
+        .section-label {
+            font-size: 0.78em;
+            color: #e94560;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="controlsPanel">
+        <button id="toggleControls" onclick="togglePanel()">Configurações</button>
+        <div id="configPanel">
+            <div class="section-label">Monitor</div>
+            <div class="row">
+                <div>
+                    <label>Tela (polegadas)</label>
+                    <select id="screenSize">
+                        <option value="14">14"</option>
+                        <option value="15">15"</option>
+                        <option value="15.6">15.6"</option>
+                        <option value="17">17"</option>
+                        <option value="18.4">18.4"</option>
+                        <option value="19">19"</option>
+                        <option value="20">20"</option>
+                        <option value="21.5">21.5"</option>
+                        <option value="22">22"</option>
+                        <option value="24">24"</option>
+                        <option value="27" selected>27"</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Formato</label>
+                    <select id="aspectRatio">
+                        <option value="16:9" selected>16:9</option>
+                        <option value="16:10">16:10</option>
+                        <option value="4:3">4:3</option>
+                        <option value="3:2">3:2</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label>Resol. X (px)</label>
+                    <input type="number" id="resX" value="2560" min="800" max="7680">
+                </div>
+                <div>
+                    <label>Resol. Y (px)</label>
+                    <input type="number" id="resY" value="1440" min="600" max="4320">
+                </div>
+            </div>
+
+            <div class="dpi-bar">
+                <div><div class="val" id="dpiValue">--</div><div class="lbl">DPI</div></div>
+                <div><div class="val" id="pxPerMM">--</div><div class="lbl">px/mm</div></div>
+                <div><div class="val" id="mmPerPx">--</div><div class="lbl">mm/px</div></div>
+                <div><div class="val" id="screenW">--</div><div class="lbl">Largura</div></div>
+                <div><div class="val" id="screenH">--</div><div class="lbl">Altura</div></div>
+            </div>
+
+            <div class="section-label">Papel</div>
+            <div class="paper-selector" id="paperSelector"></div>
+
+            <div class="orient-row">
+                <button class="orient-btn active" id="orientPortrait" onclick="setOrientation('portrait')">Retrato</button>
+                <button class="orient-btn" id="orientLandscape" onclick="setOrientation('landscape')">Paisagem</button>
+                <span class="chk"><input type="checkbox" id="showMargins" checked onchange="updateDisplay()"> Margens</span>
+                <span class="chk"><input type="checkbox" id="showRulers" checked onchange="updateDisplay()"> Réguas</span>
+            </div>
+
+            <div class="section-label">Calibração</div>
+            <p style="font-size:0.72em;color:#888;margin-bottom:6px;">
+                Meça a caixa abaixo com uma régua real. Deve medir <b style="color:#e94560">5cm x 5cm</b>.
+                Se não bater, ajuste o slider até bater.
+            </p>
+            <div class="calibrate-box">
+                <span>50mm x 50mm</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                <span style="font-size:0.78em;color:#aaa;">Escala:</span>
+                <input type="range" id="scaleFactor" min="50" max="150" value="100" step="0.5" oninput="updateScale()" style="flex:1;accent-color:#e94560;">
+                <div style="font-size:0.85em;min-width:48px;text-align:center;color:#e94560;font-weight:bold;" id="scaleVal">100%</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fullscreenPaper">
+        <div id="paperContainer"></div>
+    </div>
+
+    <div id="paperInfo"></div>
+
+    <script>
+        const PAPERS = [
+            { name: 'A0', w: 841, h: 1189 },
+            { name: 'A1', w: 594, h: 841 },
+            { name: 'A2', w: 420, h: 594 },
+            { name: 'A3', w: 297, h: 420 },
+            { name: 'A4', w: 210, h: 297, default: true },
+            { name: 'A5', w: 148, h: 210 },
+            { name: 'A6', w: 105, h: 148 },
+            { name: 'B4', w: 250, h: 353 },
+            { name: 'B5', w: 176, h: 250 },
+            { name: 'Carta', w: 216, h: 279 },
+            { name: 'Ofício', w: 216, h: 356 },
+            { name: 'Ofício-R', w: 356, h: 216 },
+        ];
+
+        const MARGINS = { top: 17, bottom: 17, left: 15, right: 15 };
+        const MARGINS_FOLIO = { top: 20, bottom: 20, left: 25, right: 15 };
+
+        let pxPerMM_val = 0;
+        let selectedPaper = PAPERS.find(p => p.default);
+        let orientation = 'portrait';
+        let scaleAdjust = 1.0;
+
+        function togglePanel() {
+            const p = document.getElementById('configPanel');
+            p.classList.toggle('open');
+            document.getElementById('toggleControls').textContent = p.classList.contains('open') ? 'Fechar' : 'Configurações';
+        }
+
+        function initPaperButtons() {
+            const c = document.getElementById('paperSelector');
+            c.innerHTML = '';
+            PAPERS.forEach(p => {
+                const b = document.createElement('button');
+                b.className = 'paper-btn' + (p.name === selectedPaper.name ? ' active' : '');
+                b.textContent = p.name;
+                b.title = `${p.w} x ${p.h}mm`;
+                b.onclick = () => {
+                    selectedPaper = p;
+                    document.querySelectorAll('.paper-btn').forEach(x => x.classList.remove('active'));
+                    b.classList.add('active');
+                    updateDisplay();
+                };
+                c.appendChild(b);
+            });
+        }
+
+        function recalcDPI() {
+            const diagIn = parseFloat(document.getElementById('screenSize').value);
+            const resX = parseInt(document.getElementById('resX').value);
+            const resY = parseInt(document.getElementById('resY').value);
+            const dpi = Math.sqrt(resX * resX + resY * resY) / diagIn;
+
+            pxPerMM_val = dpi / 25.4;
+
+            const sw = resX / pxPerMM_val;
+            const sh = resY / pxPerMM_val;
+
+            document.getElementById('dpiValue').textContent = dpi.toFixed(1);
+            document.getElementById('pxPerMM').textContent = pxPerMM_val.toFixed(2);
+            document.getElementById('mmPerPx').textContent = (1 / pxPerMM_val).toFixed(3);
+            document.getElementById('screenW').textContent = sw.toFixed(0) + 'mm';
+            document.getElementById('screenH').textContent = sh.toFixed(0) + 'mm';
+
+            updateDisplay();
+        }
+
+        function setOrientation(o) {
+            orientation = o;
+            document.getElementById('orientPortrait').classList.toggle('active', o === 'portrait');
+            document.getElementById('orientLandscape').classList.toggle('active', o === 'landscape');
+            updateDisplay();
+        }
+
+        function updateScale() {
+            scaleAdjust = document.getElementById('scaleFactor').value / 100;
+            document.getElementById('scaleVal').textContent = (scaleAdjust * 100).toFixed(1) + '%';
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            if (pxPerMM_val === 0) return;
+
+            let pw, ph;
+            if (orientation === 'landscape') {
+                pw = Math.max(selectedPaper.w, selectedPaper.h);
+                ph = Math.min(selectedPaper.w, selectedPaper.h);
+            } else {
+                pw = Math.min(selectedPaper.w, selectedPaper.h);
+                ph = Math.max(selectedPaper.w, selectedPaper.h);
+            }
+
+            const pxW = Math.round(pw * pxPerMM_val * scaleAdjust);
+            const pxH = Math.round(ph * pxPerMM_val * scaleAdjust);
+            const showM = document.getElementById('showMargins').checked;
+            const showR = document.getElementById('showRulers').checked;
+            const margins = (selectedPaper.w === 216 && selectedPaper.h === 356) ? MARGINS_FOLIO : MARGINS;
+
+            let html = '';
+
+            html += `<div class="paper-surface" style="width:${pxW}px;height:${pxH}px;">`;
+            html += `<div class="corner-mark tl"></div><div class="corner-mark tr"></div>`;
+            html += `<div class="corner-mark bl"></div><div class="corner-mark br"></div>`;
+
+            if (showM) {
+                const mt = Math.round(margins.top * pxPerMM_val * scaleAdjust);
+                const mb = Math.round(margins.bottom * pxPerMM_val * scaleAdjust);
+                const ml = Math.round(margins.left * pxPerMM_val * scaleAdjust);
+                const mr = Math.round(margins.right * pxPerMM_val * scaleAdjust);
+                html += `<div style="position:absolute;top:${mt}px;left:${ml}px;right:${mr}px;bottom:${mb}px;border:1px dashed rgba(0,150,255,0.3);pointer-events:none;z-index:2;"></div>`;
+            }
+
+            if (showR) {
+                html += `<div class="ruler-h top" style="width:${pxW}px;">`;
+                for (let mm = 0; mm <= pw; mm++) {
+                    const px = Math.round(mm * pxPerMM_val * scaleAdjust);
+                    const isCm = mm % 10 === 0;
+                    const isHalf = mm % 5 === 0;
+                    if (isCm || isHalf) {
+                        html += `<div class="ruler-mark ${isCm ? 'cm' : 'half'}" style="left:${px}px;"></div>`;
+                    }
+                    if (isCm) html += `<div class="ruler-label" style="left:${px}px;">${mm / 10}</div>`;
+                }
+                html += `</div>`;
+
+                html += `<div class="ruler-h left" style="height:${pxH}px;">`;
+                for (let mm = 0; mm <= ph; mm++) {
+                    const px = Math.round(mm * pxPerMM_val * scaleAdjust);
+                    const isCm = mm % 10 === 0;
+                    const isHalf = mm % 5 === 0;
+                    if (isCm || isHalf) {
+                        const dim = isCm ? '10px' : '6px';
+                        html += `<div class="ruler-mark ${isCm ? 'cm' : 'half'}" style="top:${px}px;width:${dim};height:1px;"></div>`;
+                    }
+                }
+                html += `</div>`;
+            }
+
+            html += `<div class="paper-dimensions">${pw}mm x ${ph}mm (${pxW} x ${pxH}px)</div>`;
+            html += `<div class="paper-label">${selectedPaper.name}</div>`;
+            html += `</div>`;
+
+            document.getElementById('paperContainer').innerHTML = html;
+
+            document.getElementById('paperInfo').innerHTML =
+                `<strong>${selectedPaper.name}</strong> ${pw}x${ph}mm | ` +
+                `<strong>${pxW}x${pxH}px</strong> | DPI: <strong>${(pxPerMM_val * 25.4).toFixed(0)}</strong>`;
+        }
+
+        document.getElementById('screenSize').addEventListener('change', () => { scaleAdjust = 1.0; document.getElementById('scaleFactor').value = 100; document.getElementById('scaleVal').textContent = '100.0%'; recalcDPI(); });
+        document.getElementById('aspectRatio').addEventListener('change', () => { scaleAdjust = 1.0; document.getElementById('scaleFactor').value = 100; document.getElementById('scaleVal').textContent = '100.0%'; recalcDPI(); });
+        document.getElementById('resX').addEventListener('change', () => { scaleAdjust = 1.0; document.getElementById('scaleFactor').value = 100; document.getElementById('scaleVal').textContent = '100.0%'; recalcDPI(); });
+        document.getElementById('resY').addEventListener('change', () => { scaleAdjust = 1.0; document.getElementById('scaleFactor').value = 100; document.getElementById('scaleVal').textContent = '100.0%'; recalcDPI(); });
+
+        initPaperButtons();
+        recalcDPI();
+    </script>
+</body>
+</html>

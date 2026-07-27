@@ -1,0 +1,28 @@
+# Env files
+**/.env
+
+# Database
+*.db
+
+# Build
+target/
+build/
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.ps1
+.kotlin
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

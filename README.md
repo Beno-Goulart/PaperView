@@ -28,21 +28,21 @@ PaperView is a single-file HTML tool that renders **real-scale paper sizes** (A0
 ┌──────────────────────────────────────────────────┐
 │                                                  │
 │             PaperView                            │
-│  Visualize tamanhos de papel em escala real      │
+│  Visualize paper sizes at real scale              │
 │                                                  │
-│  1. Tamanho da tela em polegadas:                │
+│  1. Screen size (inches):                        │
 │  ┌──────────────────────────┐                    │
 │  │         24               │                    │
 │  └──────────────────────────┘                    │
 │                                                  │
-│  2. Formato da tela:                             │
+│  2. Screen aspect ratio:                         │
 │  ┌──────────────┬──────────────┐                 │
 │  │ 1920x1080    │ 16:9         │                 │
 │  └──────────────┴──────────────┘                 │
 │                                                  │
-│  Ecrã detectado: 1920x1080px | Proporção: 16:9   │
+│  Screen detected: 1920x1080px | Ratio: 16:9      │
 │                                                  │
-│              [ Iniciar ]                         │
+│              [ Start ]                           │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -66,17 +66,17 @@ PaperView is a single-file HTML tool that renders **real-scale paper sizes** (A0
 
 ### 1. Open the file
 
-Double-click `tamanho-papel.html` or open it in your browser:
+Double-click `paperview.html` or open it in your browser:
 
 ```
 # Windows
-start tamanho-papel.html
+start paperview.html
 
 # macOS
-open tamanho-papel.html
+open paperview.html
 
 # Linux
-xdg-open tamanho-papel.html
+xdg-open paperview.html
 ```
 
 ### 2. First-time setup (Welcome screen)
@@ -86,7 +86,7 @@ On first open, a setup wizard appears:
 1. **Enter your monitor size** — the diagonal in inches (e.g. 17, 22, 24)
 2. **Select resolution** — or let the browser auto-detect your screen
 3. **Choose aspect ratio** — auto-detected based on your resolution
-4. Click **Iniciar**
+4. Click **Start**
 
 > Screen resolution and aspect ratio are auto-detected from your browser. You only need to enter the physical monitor size.
 
@@ -155,8 +155,8 @@ Monitor DPI is not always uniform. A 17" 16:9 monitor may have slightly differen
 ## Project Structure
 
 ```
-papel/
-├── tamanho-papel.html    # Single-file app (HTML + CSS + JS)
+PaperView/
+├── paperview.html        # Single-file app (HTML + CSS + JS)
 └── README.md             # This file
 ```
 

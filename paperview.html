@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tamanho Real de Papel no Monitor</title>
+    <title>Real Paper Size on Monitor</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -238,12 +238,12 @@
 <body>
 
     <div id="controlsPanel">
-        <button id="toggleControls" onclick="togglePanel()">Configurações</button>
+        <button id="toggleControls" onclick="togglePanel()">Settings</button>
         <div id="configPanel">
             <div class="section-label">Monitor</div>
             <div class="row">
                 <div>
-                    <label>Tela (polegadas)</label>
+                    <label>Screen (inches)</label>
                     <select id="screenSize">
                         <option value="14">14"</option>
                         <option value="15">15"</option>
@@ -259,7 +259,7 @@
                     </select>
                 </div>
                 <div>
-                    <label>Formato</label>
+                    <label>Aspect Ratio</label>
                     <select id="aspectRatio">
                         <option value="16:9" selected>16:9</option>
                         <option value="16:10">16:10</option>
@@ -270,11 +270,11 @@
             </div>
             <div class="row">
                 <div>
-                    <label>Resol. X (px)</label>
+                    <label>Res. X (px)</label>
                     <input type="number" id="resX" value="2560" min="800" max="7680">
                 </div>
                 <div>
-                    <label>Resol. Y (px)</label>
+                    <label>Res. Y (px)</label>
                     <input type="number" id="resY" value="1440" min="600" max="4320">
                 </div>
             </div>
@@ -283,30 +283,30 @@
                 <div><div class="val" id="dpiValue">--</div><div class="lbl">DPI</div></div>
                 <div><div class="val" id="pxPerMM">--</div><div class="lbl">px/mm</div></div>
                 <div><div class="val" id="mmPerPx">--</div><div class="lbl">mm/px</div></div>
-                <div><div class="val" id="screenW">--</div><div class="lbl">Largura</div></div>
-                <div><div class="val" id="screenH">--</div><div class="lbl">Altura</div></div>
+                <div><div class="val" id="screenW">--</div><div class="lbl">Width</div></div>
+                <div><div class="val" id="screenH">--</div><div class="lbl">Height</div></div>
             </div>
 
-            <div class="section-label">Papel</div>
+            <div class="section-label">Paper</div>
             <div class="paper-selector" id="paperSelector"></div>
 
             <div class="orient-row">
-                <button class="orient-btn active" id="orientPortrait" onclick="setOrientation('portrait')">Retrato</button>
-                <button class="orient-btn" id="orientLandscape" onclick="setOrientation('landscape')">Paisagem</button>
-                <span class="chk"><input type="checkbox" id="showMargins" checked onchange="updateDisplay()"> Margens</span>
-                <span class="chk"><input type="checkbox" id="showRulers" checked onchange="updateDisplay()"> Réguas</span>
+                <button class="orient-btn active" id="orientPortrait" onclick="setOrientation('portrait')">Portrait</button>
+                <button class="orient-btn" id="orientLandscape" onclick="setOrientation('landscape')">Landscape</button>
+                <span class="chk"><input type="checkbox" id="showMargins" checked onchange="updateDisplay()"> Margins</span>
+                <span class="chk"><input type="checkbox" id="showRulers" checked onchange="updateDisplay()"> Rulers</span>
             </div>
 
-            <div class="section-label">Calibração</div>
+            <div class="section-label">Calibration</div>
             <p style="font-size:0.72em;color:#888;margin-bottom:6px;">
-                Meça a caixa abaixo com uma régua real. Deve medir <b style="color:#e94560">5cm x 5cm</b>.
-                Se não bater, ajuste o slider até bater.
+                Measure the box below with a real ruler. It should measure <b style="color:#e94560">5cm x 5cm</b>.
+                If it doesn't match, adjust the slider until it matches.
             </p>
             <div class="calibrate-box">
                 <span>50mm x 50mm</span>
             </div>
             <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-                <span style="font-size:0.78em;color:#aaa;">Escala:</span>
+                <span style="font-size:0.78em;color:#aaa;">Scale:</span>
                 <input type="range" id="scaleFactor" min="50" max="150" value="100" step="0.5" oninput="updateScale()" style="flex:1;accent-color:#e94560;">
                 <div style="font-size:0.85em;min-width:48px;text-align:center;color:#e94560;font-weight:bold;" id="scaleVal">100%</div>
             </div>
@@ -346,7 +346,7 @@
         function togglePanel() {
             const p = document.getElementById('configPanel');
             p.classList.toggle('open');
-            document.getElementById('toggleControls').textContent = p.classList.contains('open') ? 'Fechar' : 'Configurações';
+            document.getElementById('toggleControls').textContent = p.classList.contains('open') ? 'Close' : 'Settings';
         }
 
         function initPaperButtons() {
